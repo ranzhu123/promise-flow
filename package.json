@@ -1,40 +1,46 @@
 {
-  "name": "promise-task-flow",
-  "version": "1.0.1",
-  "description": "Enhanced Promise flow, which supported retry, delay, jump and so on.",
-  "main": "lib/index.js",
-  "directories": {
-    "lib": "lib"
-  },
-  "scripts": {
-    "test": "./node_modules/.bin/nyc --reporter=html ./node_modules/.bin/mocha --timeout=3000 --require babel-polyfill --compilers js:babel-register"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/daleoooo/promise-flow.git"
-  },
-  "keywords": [
-    "Promise",
-    "task",
-    "control",
-    "flow",
-    "retryable"
-  ],
-  "author": "daleoooo",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/daleoooo/promise-flow/issues"
-  },
-  "homepage": "https://github.com/daleoooo/promise-flow#readme",
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-register": "^6.26.0",
-    "chai": "^4.1.2",
-    "istanbul": "^0.4.5",
-    "mocha": "^4.0.1",
-    "nyc": "^11.2.1"
-  }
+    "name": "promise-task-flow",
+    "version": "1.0.1",
+    "description": "Enhanced Promise flow, which supported retry, delay, jump and so on.",
+    "main": "lib/index.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "scripts": {
+        "test": "./node_modules/.bin/nyc --reporter=html ./node_modules/.bin/mocha --timeout=3000 --require babel-polyfill --compilers js:babel-register"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/daleoooo/promise-flow.git"
+    },
+    "keywords": [
+        "Promise",
+        "task",
+        "control",
+        "flow",
+        "retryable"
+    ],
+    "author": "daleoooo",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/daleoooo/promise-flow/issues"
+    },
+    "files": [
+        "package.json",
+        "README",
+        "LICENSE",
+        "lib/"
+    ],
+    "homepage": "https://github.com/daleoooo/promise-flow#readme",
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-core": "^6.26.0",
+        "babel-polyfill": "^6.26.0",
+        "babel-preset-env": "^1.6.0",
+        "babel-register": "^6.26.0",
+        "chai": "^4.1.2",
+        "istanbul": "^0.4.5",
+        "mocha": "^4.0.1",
+        "nyc": "^11.2.1"
+    }
 }
