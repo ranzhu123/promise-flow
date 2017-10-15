@@ -31,6 +31,18 @@ describe('Promise Task Flow', function () {
         });
     });
 
+    it('should return "task must return a promise" before retrying', function () {
+        const pf = new PromiseFlow();
+        return pf.add((err, res, options) => {
+            const { retriedTimes } = options;
+            assert(retriedTimes < 1);
+            return 1;    
+        }, { retry: 3 }).run().catch(e => {
+            assert(e.type === pf.ERROR_TYPE_NAME);
+            assert(e.message === 'task must return a promise');
+        });
+    });
+
     it('should run 1 task', function () {
         const pf = new PromiseFlow();
         pf.add(() => {
@@ -38,7 +50,7 @@ describe('Promise Task Flow', function () {
         });
         return pf.run().then(res => {
             assert(res);
-        })
+        });
     });
 
     it('should run 1 task after 1000 ms', function () {
@@ -60,7 +72,82 @@ describe('Promise Task Flow', function () {
                 throw new Error('Promise Flow delay is not work');
             }
             return flow;
-        })
+        });
+    });
+
+    it('should run 1 task and catch err and do not retry', function () {
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+            }
+        });
+
+        return pf.add((err, res) => {
+            return Promise.reject(true);
+        }, { name: 'first' }).run().catch(err => assert(err === true));
+    });
+
+    it('should run 1 task and catch err with a promise and do not retry', function () {
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+                return Promise.resolve(true);
+            }
+        });
+
+        return pf.add((err, res) => {
+            return Promise.reject(true);
+        }, { name: 'first' }).run().catch(err => assert(err === true));
+    });
+
+    it('should run 1 task and catch err and retry', function () {
+        let retriedTimes = 0;
+        let runTimes = 0;
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+                if (retriedTimes < 1) {
+                    retriedTimes += 1;
+                    return { retryOnce: true };
+                }
+                return false;
+            }
+        });
+
+        return pf.add((err, res) => {
+            runTimes += 1;
+            return Promise.reject(true);
+        }, { name: 'first' }).run().catch(err => {
+            assert(err === true);
+            assert(runTimes === 2);
+        });
+    });
+
+    it('should run 1 task and catch err with promise and retry', function () {
+        let retriedTimes = 0;
+        let runTimes = 0;
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+                if (retriedTimes < 1) {
+                    retriedTimes += 1;
+                    return Promise.resolve({ retryOnce: true });
+                }
+                return false;
+            }
+        });
+
+        return pf.add((err, res) => {
+            runTimes += 1;
+            return Promise.reject(true);
+        }, { name: 'first' }).run().catch(err => {
+            assert(err === true);
+            assert(runTimes === 2);
+        });
     });
 
     it('should run 1 task, retrying 3 times and get succeed at 2 times retry', function () {
@@ -79,7 +166,7 @@ describe('Promise Task Flow', function () {
 
         return pf.run().then(res => {
             assert(res);
-        })
+        });
     });
 
     it('should run 1 task, retrying 3 times and get succeed at 3 times retry', function () {
@@ -98,7 +185,7 @@ describe('Promise Task Flow', function () {
 
         return pf.run().then(res => {
             assert(res);
-        })
+        });
     });
 
     it('should run 1 task, retrying 3 times and get failed', function () {
@@ -114,7 +201,7 @@ describe('Promise Task Flow', function () {
 
         return pf.run().catch(err => {
             assert(err);
-        })
+        });
     });
 
     it('should run 2 task', function () {
@@ -125,6 +212,58 @@ describe('Promise Task Flow', function () {
             return taskGenerator(false)();
         }).run().then(res => {
             assert(!res); 
-        })
-    })
+        });
+    });
+
+    it('should run 1 task and rejected when 1st task throw error', function () {
+        const pf = new PromiseFlow();
+        let secondTaskRun = false;
+        return pf.add((err, res) => {
+            return Promise.reject(true);
+        }).add((err, res) => {
+            secondTaskRun = true;
+            return taskGenerator(true)();
+        }).run().catch(err => {
+            assert(!secondTaskRun);
+            assert(err); 
+        });
+    });
+
+    it('should run 2 task and rejected when 2nd task throw error', function () {
+        const pf = new PromiseFlow();
+        let secondTaskRun = false;
+        return pf.add(taskGenerator(true)).add((err, res) => {
+            secondTaskRun = true;
+            return Promise.reject(true);
+        }).run().catch(err => {
+            assert(secondTaskRun);
+            assert(err); 
+        });
+    });
+
+    it('should run 2 task and resolved 1st task ignore error', function () {
+        const pf = new PromiseFlow();
+        let secondTaskRun = false;
+        return pf.add((err, res) => {
+            return Promise.reject(true);
+        }, { ignoreError: true }).add((err, res) => {
+            secondTaskRun = true;
+            return taskGenerator(true)();
+        }).run().then(res => {
+            assert(secondTaskRun);
+            assert(res); 
+        });
+    });
+
+    it('should run 2 task and resolved when 2nd task ignore error', function () {
+        const pf = new PromiseFlow();
+        let secondTaskRun = false;
+        return pf.add(taskGenerator(true)).add((err, res) => {
+            secondTaskRun = true;
+            return Promise.reject(true);
+        }, {ignoreError: true }).run().then(res => {
+            assert(secondTaskRun);
+            assert(res); 
+        });
+    });
 });
