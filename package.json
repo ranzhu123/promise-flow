@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/daleoooo/promise-flow/issues"
   },
-  "homepage": "https://github.com/daleoooo/promise-flow#readme"
+  "homepage": "https://github.com/daleoooo/promise-flow#readme",
+  "devDependencies": {
+    "mocha": "^4.0.1"
+  }
 }
