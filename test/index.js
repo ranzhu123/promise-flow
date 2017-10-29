@@ -150,6 +150,64 @@ describe('Promise Task Flow', function () {
         });
     });
 
+    it('should run 1 task and catch err with promise and get res', function () {
+        let retriedTimes = 0;
+        let runTimes = 0;
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+                if (retriedTimes < 1) {
+                    retriedTimes += 1;
+                    return Promise.resolve({ retryOnce: true, retriedTimes });
+                }
+                return false;
+            }
+        });
+
+        return pf.add((err, res) => {
+            if (runTimes === 1) {
+                assert(typeof res === 'object');
+                assert(res.retryOnce === true);
+                assert(res.retriedTimes === runTimes);
+            }
+            runTimes += 1;
+            return Promise.reject(true);
+        }, { name: 'first' }).run().catch(err => {
+            assert(err === true);
+            assert(runTimes === 2);
+        });
+    });
+
+    it('should run 1 task and catch err retry 2 times with promise and get res', function () {
+        let retriedTimes = 0;
+        let runTimes = 0;
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+                if (retriedTimes < 2) {
+                    retriedTimes += 1;
+                    return Promise.resolve({ retryOnce: true, retriedTimes });
+                }
+                return false;
+            }
+        });
+
+        return pf.add((err, res) => {
+            if (runTimes && runTimes < 3) {
+                assert(typeof res === 'object');
+                assert(res.retryOnce === true);
+                assert(res.retriedTimes === runTimes);
+            }
+            runTimes += 1;
+            return Promise.reject(true);
+        }, { name: 'first' }).run().catch(err => {
+            assert(err === true);
+            assert(runTimes === 3);
+        });
+    });
+
     it('should run 1 task, retrying 3 times and get succeed at 2 times retry', function () {
         const pf = new PromiseFlow();
         const retry = 3;
