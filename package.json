@@ -1,6 +1,6 @@
 {
     "name": "promise-task-flow",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Enhanced Promise flow, which supported retry, delay, jump and so on.",
     "main": "lib/index.js",
     "directories": {
