@@ -102,6 +102,27 @@ describe('Promise Task Flow', function () {
         }, { name: 'first' }).run().catch(err => assert(err === true));
     });
 
+    it('should run 1 task and catch err and run next', function () {
+        let runTimes = 0;
+        const pf = new PromiseFlow({
+            beforeErrorReject (err, options) {
+                assert(err === true);
+                assert(options.name === 'first');
+                return { runNext: true };
+            }
+        });
+
+        return pf.add((err, res) => {
+            runTimes += 1;
+            return Promise.reject(true);
+        }, { name: 'first' }).add((err, res) => {
+            return Promise.resolve(0);
+        }).run().then(res => {
+            assert(res === 0);
+            assert(runTimes === 1);
+        });
+    });
+
     it('should run 1 task and catch err and retry', function () {
         let retriedTimes = 0;
         let runTimes = 0;
@@ -184,7 +205,7 @@ describe('Promise Task Flow', function () {
         let runTimes = 0;
         const pf = new PromiseFlow({
             beforeErrorReject (err, options) {
-                assert(err === true);
+                assert(err === runTimes);
                 assert(options.name === 'first');
                 if (retriedTimes < 2) {
                     retriedTimes += 1;
@@ -201,9 +222,9 @@ describe('Promise Task Flow', function () {
                 assert(res.retriedTimes === runTimes);
             }
             runTimes += 1;
-            return Promise.reject(true);
+            return Promise.reject(runTimes);
         }, { name: 'first' }).run().catch(err => {
-            assert(err === true);
+            assert(err === runTimes);
             assert(runTimes === 3);
         });
     });
