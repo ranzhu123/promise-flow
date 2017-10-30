@@ -1,5 +1,5 @@
 import assert from 'assert';
-import PromiseFlow from '../lib';
+import PromiseFlow from '../dist';
 
 function taskGenerator (res) {
     return function () {
