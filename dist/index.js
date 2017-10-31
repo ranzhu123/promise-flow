@@ -159,10 +159,11 @@ var PromiseFlow = function () {
                     task = _context$tasks$taskIn.task,
                     options = _context$tasks$taskIn.options;
                 var _options$ignoreError = options.ignoreError,
-                    ignoreError = _options$ignoreError === undefined ? false : _options$ignoreError;
+                    ignoreError = _options$ignoreError === undefined ? false : _options$ignoreError,
+                    initialValue = options.initialValue;
 
 
-                return context._runSingleTask(task, options, lastError, lastResult).catch(function (err) {
+                return context._runSingleTask(task, options, lastError, lastResult || initialValue).catch(function (err) {
                     if (err && err.type === context.ERROR_TYPE_NAME) {
                         throw err;
                     }
