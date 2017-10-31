@@ -106,7 +106,7 @@ var PromiseFlow = function () {
             var retriedTimes = 0;
             function retryRunSingleTask(err) {
                 if (err && err.type === context.ERROR_TYPE_NAME) {
-                    return Promise.reject(err);
+                    return context.PromiseFunc.reject(err);
                 }
 
                 var taskPromise = context._runSingleTaskWithoutRetry({
@@ -184,7 +184,7 @@ var PromiseFlow = function () {
                         var res = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
                         if ((typeof res === 'undefined' ? 'undefined' : _typeof(res)) !== 'object') {
-                            return Promise.reject(err);
+                            return context.PromiseFunc.reject(err);
                         }
 
                         if (res.retryOnce) {
@@ -192,7 +192,7 @@ var PromiseFlow = function () {
                         } else if (res.runNext) {
                             return runNext();
                         }
-                        return Promise.reject(err);
+                        return context.PromiseFunc.reject(err);
                     };
 
                     if (context.beforeErrorReject) {
@@ -202,14 +202,14 @@ var PromiseFlow = function () {
                             return ret.then(function (res) {
                                 return fork(res);
                             }).catch(function (e) {
-                                return Promise.reject(e);
+                                return context.PromiseFunc.reject(e);
                             });
                         }
 
                         return fork(ret);
                     }
 
-                    return Promise.reject(err);
+                    return context.PromiseFunc.reject(err);
                 }).then(function (res) {
                     taskIndex += 1;
                     if (taskIndex >= context.tasks.length) {
